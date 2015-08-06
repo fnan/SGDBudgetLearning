@@ -1,0 +1,237 @@
+ \documentclass{article}
+
+\usepackage{bm}
+\usepackage{amsfonts} 
+%\usepackage{algorithm2e} 
+\usepackage{graphicx} 
+\usepackage{pst-tree} 
+\usepackage{float} 
+\usepackage{amsmath}
+\usepackage[textsize=small]{todonotes}
+
+\newcommand{\guillaume}[1]{\todo[inline,backgroundcolor=red!20!white]{Guillaume: #1}}
+\newcommand{\feng}[1]{\todo[inline,backgroundcolor=blue!20!white]{feng: #1}}
+\newcommand{\venkat}[1]{\todo[inline,backgroundcolor=green!20!white]{venkat: #1}}
+\newcommand{\joe}[1]{\todo[inline,backgroundcolor=teal!20!white]{joe: #1}}
+
+
+
+\newcommand{\Xspace}{\mathcal{X}}
+\newcommand{\Yspace}{\mathcal{Y}}
+\newcommand{\Bspace}{\mathcal{B}}
+\newcommand{\f}{f}
+\newcommand{\g}{g}
+\newcommand{\h}{h}
+\newcommand{\p}{p}
+\newcommand{\q}{q}
+\newcommand{\entropy}{\mathcal{H}}
+\newcommand{\freenrj}{\mathcal{F}}
+\newcommand{\jaak}{\lambda}
+\newcommand{\B}{B}
+\renewcommand{\b}{b}
+\renewcommand{\v}{\nu}
+\renewcommand{\d}{d}
+\newcommand{\w}{w}
+\newcommand{\x}{x}
+\newcommand{\y}{y}
+\renewcommand{\S}{\mathcal{S}}
+\newcommand{\normdist}{\mathcal{N}}
+\newcommand{\s}{s}
+\renewcommand{\L}{\Lambda}
+\newcommand{\A}{A}
+\renewcommand{\b}{b}
+\renewcommand{\c}{c}
+\newcommand{\C}{C}
+\newcommand{\varq}{S}
+\newcommand{\meanq}{m}
+\newcommand{\trace}{\mathop{\textrm{tr}}}
+\newcommand{\diag}{\mathop{\textrm{diag}}}
+\newcommand{\transp}{^{T}}
+\newcommand{\sigm}{\sigma}
+\newcommand{\proba}{P}
+\newcommand{\approxfamily}{\mathcal{Q}}
+\newcommand{\D}{D}
+\newcommand{\loss}{\ell}
+\newcommand{\Z}{Z}
+\newcommand{\indic}{\textrm{I}}
+
+\newcommand{\Expectation}[2]{\textrm{E}_{#1}{\left[#2\right]}}
+
+
+
+\floatstyle{ruled}
+\newfloat{algo}{thp}{lop}
+\floatname{algo}{Algorithm}
+
+\newtheorem{definition}{Definition}
+\newtheorem{property}{Property}
+\newtheorem{proposition}{Proposition}
+\newenvironment{proof}{\textbf{Proof~}\small}{\hfill$\Box$\\}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%   PAGE FORMAT   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%\setlength{\topmargin}{-1.5cm}
+%\setlength{\oddsidemargin}{-0.5cm}
+%\setlength{\textheight}{25cm}
+%\setlength{\textwidth}{17.5cm}
+%\setlength{\parindent}{0cm}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{document}
+\author{}
+\date\today
+\title{Stochastic Gradient Descent For Budgeted Learning}
+\maketitle
+
+\section{Introduction}
+
+In supervised classification involving a large number of features, 
+the computation of the features should be taken into account. Indeed, if time or cost matters, it not always beneficial to compute all the features before making a decision. For example, in image categorization, a simple classifier based on a thumbnail images might be good most of the time, but if the object inside the image is small or occluded, one might require to download the full resolution image in order to make the final decision about the category. Similarly, when focusing on applications such as medical diagnostic, simple measures can be made (e.g. the color of the skin, the presence of cough, temperature, etc.) but they might not be discriminative, while more complex but costly diagnostics might be needed to have further information to predict the presence or absence of a disease. 
+
+The notion of cascading features is the fact that a set of features is computed dynamically, based on the information we have gathered so far. 
+
+Several approaches have been proposed by casting the problem as a reinforcement learning problem [Citations to be made].
+
+Unlike previous approaches based on reinforcement learning, 
+we treat the problem directly by 
+
+\feng{Comments of Feng appear here}
+\venkat{Comments of Venkat appear here}
+\joe{Comments of Joe appear here}
+
+
+
+
+\section{Decision-theoretic framework}
+For simplicity we first introduce our approach in a simple setting when we only have two types of features, and these features are observed all together. 
+Consider the regression task where the goal is
+to predict an output $\y\in\Yspace$ 
+based on ``cheap'' features $\x_1\in\Re^{d_1}$ and 
+``costly'' features $\x_2\in\Re^{d_2}$. 
+
+
+We assume that for every prediction $s$, the user can choose whether or not
+computing $\x_2$. This binary choice, denoted $\delta$ is based on a rational decision of the agent (the user) that tries to minimize its expected loss.
+If $\delta=1$, only $x_1$ is observed and we incur a loss $\loss$ for predicting $s_1\in\Re$ based only on on $\x_1$. 
+If $\delta=2$, the user decides to observe $\x_2$. In such case,
+the total loss $\bar\loss$ is then a fixed amount $\c_2$ plus the loss $\loss$ of 
+predicting $s_2\in\Re$ that has been made based on $\x_1$ jointly with $x_2$.
+\begin{eqnarray}
+\bar\loss(x_1,x_2;\delta,\y^*) = 
+\loss(s_1(\x_1,\theta_1);\y^*) \indic_{\{\delta=1\}}
++ \left(
+c_2 +\loss(s_2(\x_1,\x_2,\theta_2);y^*) 
+\right)
+\indic_{\{\delta=2\}} 
+\label{eq:loss}
+\end{eqnarray}
+where $y^*$ is the ground truth output, $s_1(\x_1,\theta_1)$ is the model for the cheap features and $s_2(\x_1,\x_2,\theta_2)$ is the model for the expensive features, $\theta_1\in\Theta_1$ and $\theta_2\in\Theta_2$ being parameters of the two models. Estimators for $\theta_1$ and $\theta_2$ can be obtained by minimizing the empirical loss on the training data, possibly penalized by a regularization function to avoid overfitting:
+
+\begin{eqnarray}
+\hat\theta_1 &\in & \arg\min_{\theta_1\in\Theta_1} \sum_{i=1}^n \loss(s(x_1^{(i)},\theta_1);\y^{(i)}) + \lambda_1 \Omega_1(\theta_1)
+\label{eq:Theta1}
+\\
+\hat\theta_2 &\in & \arg\min_{\theta_2\in\Theta_2} \sum_{i=1}^n \loss(s(\x_1^{(i)},x_2^{(i)},\theta_2);\y^{(i)}) + \lambda_2 \Omega_2(\theta_2)
+\label{eq:Theta2}
+\end{eqnarray}
+where the training dataset is represented by $n$ cheap input-expensive input-output triples $\{\x_1^{(i)},\x_2^{(i)},\y^{(i)})\}$.
+
+Given $x_1$, the oracle decision $\delta^*$ is obtained by minimizing the expected loss $\min_\delta L^*=\Expectation{*}{\loss(\x_1,\x_2;\delta,\y^*)|\x_1}$ with respect to $\delta$ under the sample distribution $\proba^*$. This means that the best possible decision would be:
+\begin{eqnarray}
+\delta^*(x_1) = 1 && \mathrm{if}\  \Expectation{*}{\loss(s_1(\x_1);\y^*)|\x_1}<
+c_2 + \Expectation{*}{\loss(\s_2(\x_1,\x_2);y^*)|\x_1}
+\nonumber\\
+=2&&\mathrm{otherwise.}
+\label{eq:Eloss1}
+\end{eqnarray}
+We do not know $\proba^*$, but we can estimate this decision function 
+on the training data.  It is a binary decision problem, so learning this decision function $a(\x_1;\pi)$ is equivalent to a regression that uses $x_1$ as input features, where $\pi\in\Pi$ are the parameters to be estimated. The binary output variables associated to every training instance are denoted by $\delta^{(i)}$, $i=1,\cdots, n$ and are obtained by using the decision rule of Equation\eqref{eq:Eloss1} but using empirical expectations rather than exact expectations.
+
+\begin{eqnarray}
+\hat\pi &\in & \arg\min_{\pi\in\Pi} \sum_{i=1}^n \loss_\sigma(a(x_1^{(i)},\pi);\delta^{(i)}) + \lambda_0 \Omega_0(\pi)
+\enspace,
+\label{eq:Pi0}
+\end{eqnarray}
+where $\ell_\sigma$ is the logistic loss:
+\begin{eqnarray}
+\ell_\sigma(u,\delta)= \log(1+e^{-u}) && \mathrm{if}\  \delta=1
+\nonumber\\
+= \log(1+e^{u})&&\mathrm{otherwise.}
+\end{eqnarray}
+but an alternative objective that should give similar performances is based directly on the scores: 
+\begin{eqnarray}
+\hat\pi &\in & \arg\min_{\pi\in\Pi} \sum_{i=1}^n \sigma(a(x_1^{(i)},\pi)) \loss(s_1(x_1^{(i)},\hat\theta_1);y^{(i)})
+\nonumber \\
+&&+ \sigma(-a(x_1^{(i)},\pi)) (c_2+\loss(s_2(x_1^{(i)},x_2^{(i)},\hat\theta_2);y^{(i)}))
++ \lambda_0 \Omega_0(\pi)
+\label{eq:Pi}
+\enspace.
+\end{eqnarray}
+Here, we directly see that if the decision function $a(x_1^{(i)},\pi)$ is able to overfit on the training data, the empirical loss minimized by Equation~\eqref{eq:Pi} is the smallest training loss for this combination of parameters $\hat\theta_1$ and $\hat\theta_2$.
+
+\section{Budgeted Learning}
+The previous approach works fine to learn the optimal decision at test time. But the implicit assumption we made is that we are in a batch setting, where the training data have been already fully observed, but this can cost a lot for problems with a large number of training data. More precisely, the cost of acquisition during training is $n \times c_2$, where $n$ is the total number of training data. 
+There are two issues with the previous approach:
+\begin{itemize}
+\item Learning $\theta_2$ requires expensive features.
+\item Learning the optimal decision function $\delta$ requires expensive features to be extracted from training data.
+\end{itemize}
+
+Ideally, we would like to be able to learn a \emph{good enough} decision function by observing the expensive features for only a subset $n_2$ of the training data where $n_2<<n$. 
+
+Finding the optimal strategy to acquire training data is an instance of active learning scenario. A every acquisition step of expensive features, we can use the current estimate of the parameters to prediction which training instances are more likely to be better estimated using the expensive features. A naive approach is to use the model uncertainty based only on the cheap features, the intuition being that the interesting cases are the ones that cannot be well predicted using the cheap features. This approach will serve as baseline \guillaume{IMPORTANT POINT TO BE DISCUSSED: Do we want to compare with standard active learning?}
+
+In the previous section, we \emph{jointly minimize the loss and the decision function parameters during training}. This means that we solve the following unrelated problems:
+
+
+
+
+
+Instead, we propose to cast Equations~\eqref{eq:Theta1}, \eqref{eq:Theta2} and \eqref{eq:Pi} into one single optimization problem.
+
+\begin{eqnarray}
+(\hat\theta_1,\hat\theta_2,\hat\pi) &\in & \arg\min_{\theta_1\in\Theta_1, \theta_2\in\Theta_2, \pi\in\Pi}  \sum_{i=1}^n\sum_{\delta=1}^2 
+\proba_\pi(\delta |  x_1^{(i)}) \loss_{i\delta}(\theta_1,\theta_2)
+\nonumber \\
+&&
++ \lambda_0 \Omega_0(\pi) 
++ \lambda_1 \Omega_1(\theta_1)
++ \lambda_2 \Omega_2(\theta_2)
+\label{eq:Final}
+\end{eqnarray}
+where:
+\begin{eqnarray}
+\proba_\pi(\delta=1 |  x_1^{(i)}) &=& \sigma(a(x_1^{(i)},\pi)) 
+ \\
+\loss_{i1}(\theta_1,\theta_2) &=& \loss(s_1(x_1^{(i)},\theta_1);y^{(i)})
+ \\
+\loss_{i2}(\theta_1,\theta_2) &=& c_2+\loss(s_2(x_1^{(i)},x_2^{(i)},\theta_2);y^{(i)})
+\label{eq:FinalDef}
+\end{eqnarray}
+and we minimize ~\eqref{eq:Final} using SGD:
+
+At each iteration until convergence:
+\begin{itemize}
+  \item Sample $i$ and observe the cheap feature $x_1^{(i)}$
+  \item Sample $\delta$ using $\proba(\delta | x_1^{(i)})$
+  \item If $\delta=1$, then
+  \begin{itemize}
+    \item $\theta_1 \leftarrow \theta_1 - \epsilon_1 \nabla_{\theta_1}\loss(s_1(x_1^{(i)},\theta_1);y^{(i)})$
+  \end{itemize}
+\item Else ($\delta=2$)
+	\begin{itemize}
+	  \item Sample $i$ and acquire the expensive feature $x_2^{(i)}$	
+	  \item $\theta_2 \leftarrow \theta_2 - \epsilon_2 \nabla_{\theta_2} \loss(s_1(x_1^{(i)},x_2^{(i)},\theta_2);y^{(i)})$
+      \item $\pi \leftarrow \pi - \epsilon_0  \proba_\pi(\delta |  x_1^{(i)}) \loss_{i\delta}(\theta_1,\theta_2) \nabla_\pi \log \proba_\pi(\delta |  x_1^{(i)})$
+	\end{itemize}	
+\end{itemize}
+
+
+In this algorithm, we see that we sample the decision $\delta$ based on our current model $\proba_\pi$. 
+We can verify that the gradient is correct and converges to the same solution as in the batch setting, but we do not always make the acquisition of the expensive feature $\x_2$. This algorithm can be seens as a \emph{on-policy} 
+reinforcement learning algorithm, and can be seen as a special instance of the Reinforce algorithm [cite Ronald J. William, 1987]. 
+
+Further improvements can be made by using off-policy learning algorithms.
+
+\end{document}
