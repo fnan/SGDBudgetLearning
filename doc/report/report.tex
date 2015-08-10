@@ -77,7 +77,7 @@
 %\setlength{\parindent}{0cm}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
+\bibliographystyle{plain}
 \begin{document}
 \author{}
 \date\today
@@ -170,6 +170,16 @@ but an alternative objective that should give similar performances is based dire
 \end{eqnarray}
 Here, we directly see that if the decision function $a(x_1^{(i)},\pi)$ is able to overfit on the training data, the empirical loss minimized by Equation~\eqref{eq:Pi} is the smallest training loss for this combination of parameters $\hat\theta_1$ and $\hat\theta_2$.
 
+\feng{I think ours is active learning in a streaming setting. The cheap features come for free, which correspond to the features in standard active learning; the expensive features have costs, which correspond to labels in standard active learning. This way we can avoid the need of a third party to check the data as required in \cite{DBLP:journals/corr/AbernethyCHW15}. We can formulate it as an online regret minimization problem as follows. 
+$$
+Regret=\sum_{t=1}^{T} l_t(\pi_t)-\min_{\pi \in \Pi} \sum_{t=1}^{T} l_t(\pi),
+$$
+where $\pi$ is the parameter for the decision whether to acquire the expensive feature or not. Following \eqref{eq:Pi} the loss can be defined as
+$$
+l(\pi)=\sigma(a(x^{(i)}_1,\pi))l(s_1(x^{(i)}_1,\theta_1);y^{(i)})+\sigma(-a(x^{(i)}_1,\pi))(c_2+l(s_2(x^{(i)}_1,x^{(i)}_2,\theta_2);y^{(i)})).
+$$
+Here we assume $\theta_1$ and $\theta_2$ are pre-computed and constant in the above optimization problem. We can show that the loss function is convex in $\pi$. Can we get regret bound?}
+
 \section{Budgeted Learning}
 The previous approach works fine to learn the optimal decision at test time. But the implicit assumption we made is that we are in a batch setting, where the training data have been already fully observed, but this can cost a lot for problems with a large number of training data. More precisely, the cost of acquisition during training is $n \times c_2$, where $n$ is the total number of training data. 
 There are two issues with the previous approach:
@@ -181,6 +191,7 @@ There are two issues with the previous approach:
 Ideally, we would like to be able to learn a \emph{good enough} decision function by observing the expensive features for only a subset $n_2$ of the training data where $n_2<<n$. 
 
 Finding the optimal strategy to acquire training data is an instance of active learning scenario. A every acquisition step of expensive features, we can use the current estimate of the parameters to prediction which training instances are more likely to be better estimated using the expensive features. A naive approach is to use the model uncertainty based only on the cheap features, the intuition being that the interesting cases are the ones that cannot be well predicted using the cheap features. This approach will serve as baseline \guillaume{IMPORTANT POINT TO BE DISCUSSED: Do we want to compare with standard active learning?}
+
 
 In the previous section, we \emph{jointly minimize the loss and the decision function parameters during training}. This means that we solve the following unrelated problems:
 
@@ -233,5 +244,7 @@ We can verify that the gradient is correct and converges to the same solution as
 reinforcement learning algorithm, and can be seen as a special instance of the Reinforce algorithm [cite Ronald J. William, 1987]. 
 
 Further improvements can be made by using off-policy learning algorithms.
+\feng{Can we have some guarantees for the optimization problem of \eqref{eq:Final}? It seems if we want to jointly optimize $\theta$ and $\pi$ it immediately turns into a bilinear problem - we can only say that it converges to a local minimum? }
+\bibliography{references}
 
 \end{document}

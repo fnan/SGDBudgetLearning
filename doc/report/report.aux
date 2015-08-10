@@ -1,0 +1,28 @@
+\relax 
+\bibstyle{plain}
+\@writefile{toc}{\contentsline {section}{\numberline {1}Introduction}{1}}
+\@writefile{tdo}{\contentsline {todo}{feng: Comments of Feng appear here}{1}}
+\pgfsyspdfmark {pgfid1}{20088094}{18159298}
+\@writefile{tdo}{\contentsline {todo}{venkat: Comments of Venkat appear here}{1}}
+\pgfsyspdfmark {pgfid2}{20088094}{17085236}
+\@writefile{tdo}{\contentsline {todo}{joe: Comments of Joe appear here}{1}}
+\pgfsyspdfmark {pgfid3}{20088094}{16011174}
+\@writefile{toc}{\contentsline {section}{\numberline {2}Decision-theoretic framework}{1}}
+\newlabel{eq:loss}{{1}{2}}
+\newlabel{eq:Theta1}{{2}{2}}
+\newlabel{eq:Theta2}{{3}{2}}
+\newlabel{eq:Eloss1}{{4}{2}}
+\newlabel{eq:Pi0}{{5}{2}}
+\citation{DBLP:journals/corr/AbernethyCHW15}
+\newlabel{eq:Pi}{{7}{3}}
+\@writefile{tdo}{\contentsline {todo}{feng: I think ours is active learning in a streaming setting. The cheap features come for free, which correspond to the features in standard active learning; the expensive features have costs, which correspond to labels in standard active learning. This way we can avoid the need of a third party to check the data as required in \cite  {DBLP:journals/corr/AbernethyCHW15}. We can formulate it as an online regret minimization problem as follows. $$ Regret=\DOTSB \sum@ \slimits@ _{t=1}^{T} l_t(\pi _t)-\qopname  \relax m{min}_{\pi \in \Pi } \DOTSB \sum@ \slimits@ _{t=1}^{T} l_t(\pi ), $$ where $\pi $ is the parameter for the decision whether to acquire the expensive feature or not. Following \textup  {\hbox {\mathsurround \z@ \normalfont  (\ignorespaces 7\hbox {}\unskip \@@italiccorr )}} the loss can be defined as $$ l(\pi )=\sigma (a(x^{(i)}_1,\pi ))l(s_1(x^{(i)}_1,\theta _1);y^{(i)})+\sigma (-a(x^{(i)}_1,\pi ))(c_2+l(s_2(x^{(i)}_1,x^{(i)}_2,\theta _2);y^{(i)})). $$ Here we assume $\theta _1$ and $\theta _2$ are pre-computed and constant in the above optimization problem. We can show that the loss function is convex in $\pi $. Can we get regret bound?}{3}}
+\pgfsyspdfmark {pgfid4}{20088094}{29274119}
+\@writefile{toc}{\contentsline {section}{\numberline {3}Budgeted Learning}{3}}
+\@writefile{tdo}{\contentsline {todo}{Guillaume: IMPORTANT POINT TO BE DISCUSSED: Do we want to compare with standard active learning?}{4}}
+\pgfsyspdfmark {pgfid5}{20088094}{39030693}
+\newlabel{eq:Final}{{8}{4}}
+\newlabel{eq:FinalDef}{{11}{4}}
+\bibdata{references}
+\bibcite{DBLP:journals/corr/AbernethyCHW15}{1}
+\@writefile{tdo}{\contentsline {todo}{feng: Can we have some guarantees for the optimization problem of \textup  {\hbox {\mathsurround \z@ \normalfont  (\ignorespaces 8\hbox {}\unskip \@@italiccorr )}}? It seems if we want to jointly optimize $\theta $ and $\pi $ it immediately turns into a bilinear problem - we can only say that it converges to a local minimum? }{5}}
+\pgfsyspdfmark {pgfid6}{20088094}{38781292}
